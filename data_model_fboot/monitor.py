@@ -62,7 +62,11 @@ class MonitorSystem(Thread):
     def measure_hardware():
         # cpu variables
         cpu_percent = [psutil.cpu_percent()]
-        cpu_freq = [psutil.cpu_freq()[0]]
+        freq = psutil.cpu_freq()
+        if freq is not None:
+            cpu_freq = [freq[0]]
+        else:
+            cpu_freq = [0]
         # memory variables
         mem_tuple = list(psutil.virtual_memory())
         # return a tuple with all

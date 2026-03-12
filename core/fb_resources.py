@@ -14,6 +14,9 @@ class FBResources:
         # Gets the dir path to the py and fbt files
         self.root_path = utils.get_fb_files_path(fb_type)
 
+        if "__pycache__" in self.root_path:
+          self.root_path = self.root_path.replace('/__pycache__', '')
+
         # Gets the file path to the python file
         self.py_path = os.path.join(self.root_path, fb_type + '.py')
 
@@ -40,12 +43,12 @@ class FBResources:
             # Gets the running fb method
             fb_class = getattr(py_fb, self.fb_type)
             # Instance the fb class
- 
+
             if(self.fb_type.find("IEEE1451") == 0):
                 fb_obj = fb_class(ncap)
             else:
                 fb_obj = fb_class()
-    
+
             # Reads the xml
             tree = ETree.parse(self.fbt_path)
             # Gets the root element
@@ -76,7 +79,7 @@ class FBResources:
                     logging.error('Wrong data type "{0}" specified for event {1}'.format(event.get('Type'), event.get('Name')))
                     logging.error('Defaulting to Event')
                     event.set('Type', 'Event')
-                
+
             for varDec in tree.findall('.//VarDeclaration'):
                 if varDec.get('Type') is not None and varDec.get('Type') not in utils.UA_TYPES:
                     logging.error('Unknown data type "{0}" assigned to variable {1}'.format(varDec.get('Type'), varDec.get('Name')))

@@ -60,7 +60,7 @@ class Configuration:
         if fb_definition is not None:
 
             # Checking order and number or arguments of schedule function
-            # Logs warning if order and number are not the same 
+            # Logs warning if order and number are not the same
             scheduleArgs = inspect.getargspec(fb_obj.schedule).args
             if len(scheduleArgs) > 3:
                 scheduleArgs = scheduleArgs[3:]
@@ -103,6 +103,9 @@ class Configuration:
         source_name = source_attr[1]
         destination_fb = self.get_fb(destination_attr[0])
         destination_name = destination_attr[1]
+
+        if not source_fb or not destination_fb:
+            return
 
         connection = fb_interface.Connection(destination_fb, destination_name)
         source_fb.add_connection(source_name, connection)

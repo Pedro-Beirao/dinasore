@@ -1,7 +1,7 @@
 from opcua import ua
 import os
 import sys
-
+import logging
 
 UA_TYPES = {'String': ua.VariantType.String,
             'STRING': ua.VariantType.String,
@@ -113,6 +113,8 @@ def scan_match(fb_name, dir):
             yield from scan_match(fb_name, entry.path)
         elif entry.name.split('.')[0] == fb_name:
             yield dir
+    logging.error('{0} not found'.format(fb_name))
+    yield ""
 
 class UaInterface:
 

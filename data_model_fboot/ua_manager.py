@@ -46,7 +46,7 @@ class UaManagerFboot(peer.UaPeer):
             'path': folder_path,
             'path_list': folder_list
         }
-        # create services folder 
+        # create services folder
         folder_idx, folder_path, folder_list = utils.default_folder(self, self.base_idx, self.ROOT_PATH, self.ROOT_LIST, 'OPC-UA_Methods')
         self.folders['OPC-UA_Methods'] = {
             'idx': folder_idx,
@@ -64,7 +64,7 @@ class UaManagerFboot(peer.UaPeer):
                 if child.tag == 'Watch':
                     is_watch = True
                     break
-            
+
             if is_watch:
                 is_watch = False
                 continue
@@ -105,7 +105,7 @@ class UaManagerFboot(peer.UaPeer):
         # create function blocks - folders, objects and variables
         self.generate_function_blocks(lines)
         # create connections - write and create between variables and events
-        self.generate_connections(lines)        
+        self.generate_connections(lines)
 
     def generate_function_blocks(self, lines):
         for line in lines:
@@ -120,8 +120,13 @@ class UaManagerFboot(peer.UaPeer):
                         if child.tag == 'FB' and child.get('Type') != 'EMB_RES':
                             root_path = utils.get_fb_files_path(child.get('Type'))
                             # Check fbt file
-                            fb_file = open(os.path.join(root_path, '{0}.fbt'.format(child.get('Type'))), 'r')
-                            self.parse_fbt(child.get('Name'), fb_file)
+                            path = os.path.join(root_path, '{0}.fbt'.format(child.get('Type')))
+                            if os.path.isfile(path):
+                                fb_file = open(path, 'r')
+                                self.parse_fbt(child.get('Name'), fb_file)
+                            else:
+                                logging.error("{0} not found".format(path))
+                                raise KeyError
             except KeyError:
                 raise self.InvalidFbootState
 
@@ -152,7 +157,7 @@ class UaManagerFboot(peer.UaPeer):
                         if child.tag == 'Connection':
                             if len(self.method_names) == 0 or not utils.any_element_in_string(self.method_names, child.get('Destination')):
                                 # Write connection
-                                self.config.write_connection(child.get('Source'), child.get('Destination'))    
+                                self.config.write_connection(child.get('Source'), child.get('Destination'))
                             elif len(self.method_names) != 0 and utils.any_element_in_string(self.method_names, child.get('Destination')):
                                 # Save wrapper info
                                 info_type = child.get('Destination').split('.')[1]
@@ -161,7 +166,7 @@ class UaManagerFboot(peer.UaPeer):
                                 elif info_type == 'OUTPUT':
                                     self.method_outputs = child.get('Source')
                                 elif info_type == 'METHOD_NAME':
-                                    self.opcua_method_name = child.get('Source')                   
+                                    self.opcua_method_name = child.get('Source')
             except KeyError:
                 raise self.InvalidFbootState
 
@@ -185,4 +190,3 @@ class UaManagerFboot(peer.UaPeer):
         self.config.stop_work()
         # stops the ua server
         self.stop()
-          

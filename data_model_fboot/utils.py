@@ -1,7 +1,7 @@
 from opcua import ua
 import os
 import sys
-
+import logging
 
 UA_TYPES = {'String': ua.VariantType.String,
             'STRING': ua.VariantType.String,
@@ -103,7 +103,9 @@ def get_fb_files_path(fb_name):
                                  'resources',
                                  'function_blocks')
 
-    path = next(scan_match(fb_name, root_fbs_path))
+    path = next(scan_match(fb_name, root_fbs_path), "")
+    if path == "":
+        logging.error('{0} not found'.format(fb_name))
 
     return path
 
